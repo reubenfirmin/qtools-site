@@ -1,6 +1,8 @@
 <script>
   import { tick } from 'svelte';
 
+  const screenshotVersion = import.meta.env.VITE_SCREENSHOT_VERSION;
+
   const slides = [
     { image: 'pq-overview.png', command: 'pq -n 10', caption: 'see CPU and memory by process group', title: 'What is busy?', notes: ['Each row is a process group, not a pile of individual PIDs.', 'The same colour identifies it in the rings and the table.'], alt: 'pq CPU and memory overview with a multiring chart and aligned process table' },
     { image: 'pq-swap.png', command: 'pq --swap -n 10', caption: 'find which processes are using swap', title: 'Who is using swap?', notes: ['The outer ring shows memory; the inner ring shows swap.', 'The table is ordered by swapped bytes.'], alt: 'pq swap report with paired memory and swap rings and ranked consumers' },
@@ -39,7 +41,7 @@
   <div class="slides" role="region" aria-label="Screenshot viewer">
     <figure>
       <div class="slide-stage">
-        <img src={`/assets/screenshots/${slide.image}`} alt={slide.alt}>
+        <img src={`/assets/screenshots/${slide.image}?v=${screenshotVersion}`} alt={slide.alt}>
         <aside class="feature-frame">
           <strong>{slide.title}</strong>
           {#each slide.notes as note}<span>{note}</span>{/each}
