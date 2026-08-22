@@ -24,8 +24,10 @@ function updateControls() {
 
 function show(index) {
   slides[current].classList.remove('is-active');
+  slides[current].hidden = true;
   current = Math.max(0, Math.min(slides.length - 1, index));
   slides[current].classList.add('is-active');
+  slides[current].hidden = false;
   updateControls();
 }
 
@@ -46,4 +48,8 @@ track.addEventListener('touchend', event => {
   touchStart = null;
 }, { passive: true });
 
+slides.forEach((slide, index) => {
+  slide.hidden = index !== current;
+  slide.classList.toggle('is-active', index === current);
+});
 updateControls();
