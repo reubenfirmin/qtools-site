@@ -27,13 +27,13 @@
 pq --help
 dq --help</code></pre>
       <p class="small">Installs to <code>~/.local/bin</code>. No root access and no downloaded script
-        piped into a shell. Use <code>qtools update</code> for zsync updates.</p>
+        piped into a shell. Use <code>qtools update</code> for zsync updates. To verify provenance,
+        run <code>gh attestation verify Qtools-x86_64.AppImage --repo reubenfirmin/qtools</code>.</p>
     </section>
 
     <footer>
       <a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a>
-      <a href="https://repo.qtools.sh/SHA256SUMS.asc">Signature</a>
-      <a href="https://repo.qtools.sh/qtools-release-key.asc">Signing key</a>
+      <a href="https://github.com/reubenfirmin/qtools/attestations">Build provenance</a>
     </footer>
   </main>
 </body>

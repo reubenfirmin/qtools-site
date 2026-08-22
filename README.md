@@ -8,4 +8,5 @@ build command, and the output directory set to `/`. Attach `qtools.sh` and `www.
 project. Release binaries are served separately by the `qtools-repo` Pages project at
 `repo.qtools.sh`; see the main project's `packaging/RELEASE.md`.
 
-No Cloudflare credentials or signing material belong in this repository.
+No Cloudflare credentials belong in this repository. Release provenance is generated keylessly by
+the main repository's GitHub Actions workflow.
