@@ -29,18 +29,12 @@ pre { overflow-x: auto; padding: 20px; color: #d7e3dc; background: #121a16; bord
 .gallery-toolbar button:disabled { cursor: default; opacity: .35; }
 .gallery-count { margin-left: auto; color: #87958e; font-size: .82rem; }
 .slides {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: min(92%, 860px);
-  gap: 18px;
-  overflow-x: auto;
   padding: 6px 0 18px;
-  scroll-snap-type: x mandatory;
-  scrollbar-color: #496052 #121a16;
 }
 .slides:focus-visible { outline: 2px solid #73e2a7; outline-offset: 5px; }
-.slides figure { margin: 0; scroll-snap-align: start; }
-.slides img { display: block; width: 100%; height: auto; background: #171717; border: 1px solid #26352d; border-radius: 7px; }
+.slides figure { display: none; margin: 0; }
+.slides figure.is-active { display: block; }
+.slides img { display: block; width: 100%; max-height: 72vh; object-fit: contain; object-position: left top; background: #171717; border: 1px solid #26352d; border-radius: 7px; }
 .slides figcaption { margin-top: 10px; color: #aab7b0; font-size: .84rem; }
 .gallery-dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
 .gallery-dots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: #33453c; cursor: pointer; }

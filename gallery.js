@@ -23,8 +23,9 @@ function updateControls() {
 }
 
 function show(index) {
+  slides[current].classList.remove('is-active');
   current = Math.max(0, Math.min(slides.length - 1, index));
-  track.scrollTo({ left: slides[current].offsetLeft, behavior: 'smooth' });
+  slides[current].classList.add('is-active');
   updateControls();
 }
 
@@ -34,11 +35,15 @@ track.addEventListener('keydown', event => {
   if (event.key === 'ArrowLeft') { event.preventDefault(); show(current - 1); }
   if (event.key === 'ArrowRight') { event.preventDefault(); show(current + 1); }
 });
-track.addEventListener('scrollend', () => {
-  current = slides.reduce((nearest, slide, index) =>
-    Math.abs(slide.offsetLeft - track.scrollLeft) < Math.abs(slides[nearest].offsetLeft - track.scrollLeft)
-      ? index : nearest, 0);
-  updateControls();
-});
+let touchStart = null;
+track.addEventListener('touchstart', event => {
+  touchStart = event.changedTouches[0].clientX;
+}, { passive: true });
+track.addEventListener('touchend', event => {
+  if (touchStart === null) return;
+  const distance = event.changedTouches[0].clientX - touchStart;
+  if (Math.abs(distance) > 50) show(current + (distance < 0 ? 1 : -1));
+  touchStart = null;
+}, { passive: true });
 
 updateControls();
