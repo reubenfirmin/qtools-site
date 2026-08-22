@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fast, visual Linux command-line tools for processes and disk usage.">
+  <title>qtools — query what's using your machine</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <p class="mark">qtools</p>
+    <h1>Query what's using<br>your machine.</h1>
+    <p class="lede"><code>pq</code> explains processes, ports, and open resources. <code>dq</code>
+      explains disk usage. Fast, visual, and built for Linux terminals.</p>
+
+    <div class="downloads">
+      <a class="primary" href="https://repo.qtools.sh/Qtools-x86_64.AppImage">Download for x86-64</a>
+      <a href="https://repo.qtools.sh/Qtools-aarch64.AppImage">ARM64</a>
+      <a href="https://github.com/reubenfirmin/qtools">Source</a>
+    </div>
+
+    <section>
+      <h2>Install for your user</h2>
+      <pre><code>chmod +x Qtools-x86_64.AppImage
+./Qtools-x86_64.AppImage --install
+pq --help
+dq --help</code></pre>
+      <p class="small">Installs to <code>~/.local/bin</code>. No root access and no downloaded script
+        piped into a shell. Use <code>qtools update</code> for zsync updates.</p>
+    </section>
+
+    <footer>
+      <a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a>
+      <a href="https://repo.qtools.sh/SHA256SUMS.asc">Signature</a>
+      <a href="https://repo.qtools.sh/qtools-release-key.asc">Signing key</a>
+    </footer>
+  </main>
+</body>
+</html>
