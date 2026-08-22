@@ -27,8 +27,20 @@
 pq --help
 dq --help</code></pre>
       <p class="small">Installs to <code>~/.local/bin</code>. No root access and no downloaded script
-        piped into a shell. Use <code>qtools update</code> for zsync updates. To verify provenance,
-        run <code>gh attestation verify Qtools-x86_64.AppImage --repo reubenfirmin/qtools</code>.</p>
+        piped into a shell.</p>
+    </section>
+
+    <section>
+      <h2>Update</h2>
+      <pre><code>qtools update</code></pre>
+      <p class="small">Uses the AppImage zsync channel to download only the changed parts.</p>
+    </section>
+
+    <section>
+      <h2>Verify provenance</h2>
+      <pre><code>gh attestation verify Qtools-x86_64.AppImage \
+  --repo reubenfirmin/qtools</code></pre>
+      <p class="small">Confirms that GitHub Actions built this exact file from the qtools repository.</p>
     </section>
 
     <footer>
