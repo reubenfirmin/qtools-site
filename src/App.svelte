@@ -5,6 +5,9 @@
   import ToolToy from './lib/ToolToy.svelte';
 
   let route = window.location.pathname.startsWith('/screenshots') ? 'screenshots' : 'home';
+  let architecture = 'x86_64';
+  $: appImage = architecture === 'x86_64' ? 'Qtools-x86_64.AppImage' : 'Qtools-aarch64.AppImage';
+  $: installCode = `curl -fLO https://repo.qtools.sh/${appImage}\nchmod +x ${appImage}\n./${appImage} --install\npq --help\ndq --help`;
 
   function navigate(event, next) {
     event.preventDefault();
@@ -36,20 +39,24 @@
 
   {#if route === 'home'}
     <section class="hero">
-      <p class="eyebrow">Linux, explained from the terminal</p>
       <h1>Query what's using your machine.</h1>
       <p class="lede"><code>pq</code> explains processes, ports, and open resources. <code>dq</code> explains disk usage. Fast, visual, and built for Linux terminals.</p>
       <ToolToy onOpen={(event) => navigate(event, 'screenshots')} />
-      <div class="downloads">
-        <a class="primary" href="https://repo.qtools.sh/Qtools-x86_64.AppImage">Download for x86-64</a>
-        <a href="https://repo.qtools.sh/Qtools-aarch64.AppImage">ARM64</a>
-        <a href="https://github.com/reubenfirmin/qtools">Source</a>
-      </div>
     </section>
 
-    <section><h2>Install for your user</h2><CodeBlock code={'chmod +x Qtools-x86_64.AppImage\n./Qtools-x86_64.AppImage --install\npq --help\ndq --help'} /><p class="small">Installs to <code>~/.local/bin</code>. No root access required.</p></section>
+    <section class="install-section">
+      <div class="section-heading">
+        <h2>Download and install</h2>
+        <div class="architecture-switch" role="group" aria-label="CPU architecture">
+          <button type="button" class:active={architecture === 'x86_64'} on:click={() => architecture = 'x86_64'}>x86-64</button>
+          <button type="button" class:active={architecture === 'aarch64'} on:click={() => architecture = 'aarch64'}>ARM64</button>
+        </div>
+      </div>
+      <CodeBlock code={installCode} />
+      <p class="small">Downloads the AppImage, then installs <code>pq</code>, <code>dq</code>, and <code>qtools</code> to <code>~/.local/bin</code>. No root access required. <a href="https://github.com/reubenfirmin/qtools">View source</a>.</p>
+    </section>
     <section><h2>Update</h2><CodeBlock code="qtools update" /><p class="small">Uses the AppImage zsync channel to download only the changed parts.</p></section>
-    <section><h2>Verify provenance</h2><CodeBlock code={'gh attestation verify Qtools-x86_64.AppImage \\\n  --repo reubenfirmin/qtools'} /><p class="small">Confirms that GitHub Actions built this exact file from the qtools repository.</p></section>
+    <section><h2>Verify provenance</h2><CodeBlock code={`gh attestation verify ${appImage} \\\n  --repo reubenfirmin/qtools`} /><p class="small">Confirms that GitHub Actions built this exact file from the qtools repository.</p></section>
     <footer><a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a><a href="https://github.com/reubenfirmin/qtools/attestations">Build provenance</a></footer>
   {:else}
     <h1>See what is using the machine.</h1>
