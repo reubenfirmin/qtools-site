@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Real terminal screenshots of qtools process, network, and disk reports.">
+  <title>qtools screenshots</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="gallery.js" defer></script>
+</head>
+<body>
+  <main class="gallery-page">
+    <header class="gallery-header">
+      <p class="mark">qtools / screenshots</p>
+      <a href="index.html">Back to qtools</a>
+    </header>
+    <h1>See what is using<br>the machine.</h1>
+    <p class="lede">Real output captured from qtools. No mock data in the reports; demo workloads
+      were isolated and temporary.</p>
+
+    <section class="gallery" aria-label="Terminal report gallery">
+      <div class="gallery-toolbar">
+        <button type="button" data-gallery-previous aria-label="Previous screenshot">← Previous</button>
+        <button type="button" data-gallery-next aria-label="Next screenshot">Next →</button>
+        <span class="gallery-count" aria-live="polite">1 / 7</span>
+      </div>
+      <div class="slides" tabindex="0">
+        <figure>
+          <img src="assets/screenshots/pq-overview.png" alt="pq CPU and memory overview with a multiring chart and aligned process table">
+          <figcaption><code>pq</code> — process overview under load</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/pq-network.png" loading="lazy" alt="pq network report attributing an outbound loopback connection to keylogger dot sh">
+          <figcaption><code>pq --net -v keylogger</code> — attribute a suspicious connection</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/dq-overview.png" loading="lazy" alt="dq allocated-space overview with a donut chart and directory table">
+          <figcaption><code>dq</code> — allocated space by directory</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/pq-io.png" loading="lazy" alt="pq process IO report with throughput chart and read and write rates">
+          <figcaption><code>pq --io</code> — live process throughput</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/pq-port.png" loading="lazy" alt="pq targeted port report identifying a local HTTP server">
+          <figcaption><code>pq --port 38881</code> — who owns this port?</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/pq-tree.png" loading="lazy" alt="pq process tree with aligned CPU memory swap PID and parent PID columns">
+          <figcaption><code>pq --tree qtools-demo --cpu</code> — hierarchy with context</figcaption>
+        </figure>
+        <figure>
+          <img src="assets/screenshots/dq-files.png" loading="lazy" alt="dq largest-files report with a donut chart and aligned size table">
+          <figcaption><code>dq --files</code> — largest files recursively</figcaption>
+        </figure>
+      </div>
+      <nav class="gallery-dots" aria-label="Choose screenshot"></nav>
+    </section>
+  </main>
+</body>
+</html>
