@@ -27,7 +27,7 @@
     <div class="toy-copy">
       <code>{tools[active].prompt}</code>
       <h2>{tools[active].question}</h2>
-      <a href="/screenshots" on:click={onOpen}>Open the real reports →</a>
+      <a href="/screenshots/" on:click={onOpen}>Open the real reports →</a>
     </div>
     <div class="toy-report" class:pq={active === 'pq'} class:dq={active === 'dq'} aria-hidden="true">
       <div class="toy-chart"><i></i><i></i><i></i></div>

@@ -9,7 +9,7 @@
   function navigate(event, next) {
     event.preventDefault();
     route = next;
-    const path = next === 'screenshots' ? '/screenshots' : '/';
+    const path = next === 'screenshots' ? '/screenshots/' : '/';
     history.pushState({}, '', path);
     window.scrollTo(0, 0);
   }
@@ -30,7 +30,7 @@
     <a class="brand" href="/" on:click={(event) => navigate(event, 'home')}><img src="/favicon.svg" alt="">qtools</a>
     <nav class="tabs" aria-label="Site">
       <a href="/" on:click={(event) => navigate(event, 'home')} aria-current={route === 'home' ? 'page' : undefined}>Home</a>
-      <a href="/screenshots" on:click={(event) => navigate(event, 'screenshots')} aria-current={route === 'screenshots' ? 'page' : undefined}>Screenshots</a>
+      <a href="/screenshots/" on:click={(event) => navigate(event, 'screenshots')} aria-current={route === 'screenshots' ? 'page' : undefined}>Screenshots</a>
     </nav>
   </header>
 
