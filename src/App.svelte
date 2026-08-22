@@ -57,7 +57,7 @@
     </section>
     <section><h2>Update</h2><CodeBlock code="qtools update" /><p class="small">Uses the AppImage zsync channel to download only the changed parts.</p></section>
     <section><h2>Verify provenance</h2><CodeBlock code={`gh attestation verify ${appImage} \\\n  --repo reubenfirmin/qtools`} /><p class="small">Confirms that GitHub Actions built this exact file from the qtools repository.</p></section>
-    <footer><a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a><a href="https://github.com/reubenfirmin/qtools/attestations">Build provenance</a></footer>
+    <footer><a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a><a href="https://github.com/reubenfirmin/qtools/attestations">Build provenance</a><a href="https://reuben.firm.in">reuben.firm.in</a></footer>
   {:else}
     <h1>See what is using the machine.</h1>
     <Gallery />
