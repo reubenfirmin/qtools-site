@@ -30,7 +30,7 @@
   <title>{route === 'screenshots' ? 'qtools screenshots' : route === 'rtfm' ? 'qtools command reference' : "qtools — query what's using your machine"}</title>
 </svelte:head>
 
-<main class:wide-page={route !== 'home'}>
+<main>
   <header class="site-header">
     <a class="brand" href="/" on:click={(event) => navigate(event, 'home')}><img src="/favicon.svg" alt="">qtools</a>
     <nav class="tabs" aria-label="Site">
@@ -41,10 +41,13 @@
   </header>
 
   {#if route === 'home'}
-    <section class="hero">
-      <h1>Query what's using your machine.</h1>
-      <p class="lede"><code>pq</code> explains processes, ports, and open resources. <code>dq</code> explains disk usage. Fast, visual, and built for Linux terminals.</p>
-      <ToolToy onOpen={(event) => navigate(event, 'screenshots')} />
+    <section class="home-intro">
+      <div class="intro-copy">
+        <p class="product-label">qtools for Linux</p>
+        <h1>See what’s using your machine.</h1>
+        <p><code>pq</code> inspects processes, ports, files, and sockets. <code>dq</code> accounts for disk usage.</p>
+      </div>
+      <ToolToy />
     </section>
 
     <section class="install-section">
@@ -56,13 +59,12 @@
         </div>
       </div>
       <CodeBlock code={installCode} />
-      <p class="small">Downloads the AppImage, then installs <code>pq</code>, <code>dq</code>, and <code>qtools</code> to <code>~/.local/bin</code>. No root access required. <a href="https://github.com/reubenfirmin/qtools">View source</a>.</p>
+      <p class="small">Installs <code>pq</code>, <code>dq</code>, and <code>qtools</code> to <code>~/.local/bin</code>. No root access required.</p>
     </section>
-    <section><h2>Update</h2><CodeBlock code="qtools update" /><p class="small">Uses the AppImage zsync channel to download only the changed parts.</p></section>
+    <section class="utility-section"><h2>Update</h2><CodeBlock code="qtools update" /><p class="small">Downloads only changed parts through zsync.</p></section>
     <section><h2>Verify provenance</h2><CodeBlock code={`gh attestation verify ${appImage} \\\n  --repo reubenfirmin/qtools`} /><p class="small">Confirms that GitHub Actions built this exact file from the qtools repository.</p></section>
-    <footer><a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a><a href="https://github.com/reubenfirmin/qtools/attestations">Build provenance</a><a href="https://reuben.firm.in">reuben.firm.in</a></footer>
+    <footer><a href="https://github.com/reubenfirmin/qtools">Source</a><a href="https://repo.qtools.sh/SHA256SUMS">Checksums</a><a href="https://github.com/reubenfirmin/qtools/attestations">Attestations</a><a href="https://reuben.firm.in">reuben.firm.in</a></footer>
   {:else if route === 'screenshots'}
-    <h1>See what is using the machine.</h1>
     <Gallery />
   {:else}
     <Rtfm />

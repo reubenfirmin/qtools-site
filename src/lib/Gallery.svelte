@@ -33,15 +33,15 @@
 <svelte:window on:keydown={keydown} />
 
 <section class="gallery" aria-label="Terminal report gallery">
-  <div class="gallery-toolbar">
-    <button type="button" on:click={() => show(current - 1)} disabled={current === 0} aria-label="Previous screenshot">← Previous</button>
-    <button type="button" on:click={() => show(current + 1)} disabled={current === slides.length - 1} aria-label="Next screenshot">Next →</button>
-    <span class="gallery-count" aria-live="polite">{current + 1} / {slides.length}</span>
-  </div>
   <div class="slides" role="region" aria-label="Screenshot viewer">
     <figure>
       <div class="slide-stage">
         <img src={`/assets/screenshots/${slide.image}?v=${screenshotVersion}`} alt={slide.alt}>
+        <div class="gallery-controls">
+          <button type="button" on:click={() => show(current - 1)} disabled={current === 0} aria-label="Previous screenshot">←</button>
+          <span aria-live="polite">{current + 1} / {slides.length}</span>
+          <button type="button" on:click={() => show(current + 1)} disabled={current === slides.length - 1} aria-label="Next screenshot">→</button>
+        </div>
         <aside class="feature-frame">
           <strong>{slide.title}</strong>
           {#each slide.notes as note}<span>{note}</span>{/each}

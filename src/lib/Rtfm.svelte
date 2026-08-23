@@ -1,153 +1,104 @@
 <script>
-  import { onMount } from 'svelte';
+  const processFilters = [
+    ['PATTERN', 'Keep groups whose identity or command contains this text'], ['--user USER', 'Keep processes owned by this username or UID'], ['--pid PID', 'Inspect one exact process ID'],
+    ['--min-cpu PERCENT', 'Hide groups below this CPU percentage'], ['--min-memory SIZE', 'Hide groups below this amount of memory']
+  ];
+  const commonOutput = [['-n, --top N', 'Limit the number of groups shown'], ['-v, --verbose', 'Expand groups into processes, connections, or other details'], ['--json / --jsonl', 'Return pretty or compact machine-readable data'], ['--no-color', 'Disable color and terminal graphics']];
 
-  const docs = {
-    pq: {
-      label: 'process query',
-      intro: 'Inspect processes, resources, open files, sockets, and process trees.',
-      topics: [
-        ['process', 'Processes', 'CPU, memory, swap, and process trees', `pq                         # CPU report
-pq --memory                # sort by resident memory
-pq --swap                  # sort by swap
-pq --tree                  # parent/child table
-pq -v chrome               # expand matching clusters
-pq -n 30 --interval 1000   # sample for one second`],
-        ['io', 'Process I/O', 'Read and write activity by process', `pq --io                    # combined I/O rate
-pq --read                  # sort by reads
-pq --write postgres        # writes matching postgres
-pq --port 5432 --io        # I/O for a port owner`],
-        ['files', 'Files & descriptors', 'Find deleted files, open FDs, and mount holders', `pq --deleted               # deleted files consuming space
-pq --fds                   # descriptor counts
-pq --mount /mnt/data       # processes holding a mount
-pq --file /var/log/app.log # processes holding one path`],
-        ['blocked', 'Blocked tasks', 'Find processes stuck in kernel waits', `pq --blocked
-pq --blocked -v
-pq --user postgres --blocked`],
-        ['pss', 'Proportional memory', 'Inspect accurate shared-memory attribution', `pq --pss chrome
-pq --pid 1234 --pss
-pq --port 5432 --pss`],
-        ['oom', 'OOM preference', 'See which processes the kernel prefers to kill', `pq --oom
-pq postgres --oom
-pq --pid 1820 --oom -v`],
-        ['limits', 'Resource limits', 'Find processes approaching finite limits', `pq --limits
-pq postgres --limits
-pq --pid 1820 --limits -v`],
-        ['unix', 'Unix sockets', 'Find owners of Unix-domain sockets', `pq --unix
-pq --unix /run/docker.sock
-pq --user root --unix`],
-        ['net', 'Network', 'Inspect listeners, connections, ports, and peers', `pq --net
-pq --listen
-pq --port 8080
-pq --remote-port 443
-pq --net --tcp --state established
-pq --public`],
-        ['filters', 'Filters', 'Combine identity, user, PID, CPU, and memory filters', `pq chrome
-pq --user postgres
-pq --pid 1234
-pq --min-cpu 10
-pq --user rafael --min-memory 2GiB`],
-        ['kill', 'Safe termination', 'Preview, confirm, and stop matching process trees', `pq --kill gradle
-pq --kill chrome --dry-run
-pq --port 8080 --kill
-pq --kill gradle --yes --grace 8`],
-        ['output', 'Output', 'Produce JSON or plain, pipe-friendly output', `pq --json
-pq --jsonl
-pq --net --json | jq .clusters
-pq --no-color | less`]
-      ]
+  const explanations = {
+    cpu: ['See which applications are keeping the processors busy. pq samples Linux process data, groups related processes such as Chrome renderers or Gradle workers, and ranks those groups by CPU use.', 'Start with the command below, then add a name, owner, threshold, or display option only when you need it.'],
+    memory: ['See which applications account for resident memory. Related processes are grouped together, so a multi-process application appears as one useful total instead of dozens of PIDs.', 'The normal report uses RSS. Use --pss when you need shared memory divided proportionally between processes.'],
+    swap: ['Find the applications whose pages have been moved to swap. The report keeps resident memory visible alongside swap so you can judge the scale of each process group.', 'Filters and display options work the same way as the CPU and memory reports.'],
+    net: ['See which processes are listening for connections or talking to peers. pq reads Linux socket tables and joins each socket back to its owning process.', 'A socket filter such as --port or --listen implies network mode, so pq --port 8080 is enough—you do not also need to write --net.'],
+    io: ['Measure which processes are issuing read and write requests during a short sample. Choose combined I/O, reads, or writes, then narrow the result with ordinary process filters.', 'Socket filters also compose here: for example, --port 5432 --io measures I/O only for the processes that own that port.'],
+    disk: ['See where space is used below a directory. dq scans once, then groups the matching files by directory, file, owner, or modification age.', 'Views, filters, accounting, and display options compose. For example, choose files, require an age and size, then ask for the top 30 results.'],
+    files: ['Inspect files and descriptors that are still held by running processes. This can find descriptor pressure, deleted files that still consume disk space, or the process preventing a filesystem from being unmounted.', 'Path selectors compose with reports: --mount /mnt/data --fds counts descriptors only among processes holding that mount.']
+  };
+
+  const exampleLabels = {
+    cpu: ['Only Chrome process groups', 'Top 20 processes owned by postgres', 'Chrome as a parent/child tree'],
+    memory: ['Memory used by Chrome', 'Large PostgreSQL process groups', 'Detailed proportional memory for one PID'],
+    swap: ['All swap users', 'Expanded details for Chrome', 'Large process groups, ranked by swap'],
+    net: ['Find the owner of a local port', 'Public TCP listeners', 'Established connections to HTTPS peers'],
+    io: ['I/O generated by PostgreSQL', 'Read rates for one user', 'Write rates for the owner of port 5432'],
+    disk: ['Directory usage in a project folder', 'Old files larger than 1 GB', 'Ignore generated and cache directories'],
+    files: ['Deleted files still using space', 'Descriptor counts for PostgreSQL', 'Detailed descriptor use beneath a mount']
+  };
+
+  const branches = {
+    cpu: {
+      label: 'CPU', command: 'pq --cpu', note: 'Processes grouped and ranked by CPU use.',
+      groups: [['Filter', processFilters], ['Display', [['--tree', 'parent/child table'], ['--interval MS', 'sampling time'], ...commonOutput]], ['Other process reports', [['--blocked', 'blocked tasks'], ['--oom', 'OOM preference'], ['--limits', 'resource limits']]]],
+      examples: ['pq --cpu chrome', 'pq --cpu --user postgres -n 20', 'pq --cpu --tree chrome']
     },
-    dq: {
-      label: 'disk query',
-      intro: 'Account for disk space by directory, file, owner, or modification age.',
-      topics: [
-        ['views', 'Views', 'Switch between directories, files, owners, and age', `dq DIR                     # directory groups
-dq --files DIR             # largest files recursively
-dq --owners DIR            # allocated bytes by owner
-dq --age DIR               # modification-age buckets`],
-        ['filters', 'Filters', 'Select by path pattern, age, and size', `dq --exclude node_modules --exclude '*.cache' .
-dq --exclude-from .dqignore .
-dq --files --older-than 90d --min-size 1G /var`],
-        ['scan', 'Accounting & traversal', 'Control measurement and filesystem boundaries', `dq --allocated             # filesystem blocks (default)
-dq --apparent              # logical file lengths
-dq --one-file-system       # do not cross mounts (default)
-dq --cross-filesystems
-dq --threads 80`],
-        ['output', 'Output', 'Control grouping, detail, errors, and JSON', `dq --top 30
-dq --depth 2
-dq --min-percent 0.5
-dq --all --errors
-dq --json
-dq --jsonl`]
-      ]
+    memory: {
+      label: 'Memory', command: 'pq --memory', note: 'Processes grouped and ranked by resident memory.',
+      groups: [['Filter', processFilters], ['Display', [['--tree', 'parent/child table'], ['--interval MS', 'sampling time'], ...commonOutput]], ['Other memory reports', [['--pss', 'proportional memory'], ['--swap', 'swap use'], ['--oom', 'OOM preference'], ['--limits', 'resource limits']]]],
+      examples: ['pq --memory chrome', 'pq --memory --user postgres --min-memory 500M', 'pq --pss --pid 1234']
+    },
+    swap: {
+      label: 'Swap', command: 'pq --swap', note: 'Processes grouped and ranked by swap use.',
+      groups: [['Filter', processFilters], ['Display', [['--tree', 'parent/child table'], ['--interval MS', 'sampling time'], ...commonOutput]], ['Related', [['--memory', 'resident memory'], ['--pss', 'proportional memory'], ['--oom', 'OOM preference']]]],
+      examples: ['pq --swap', 'pq --swap chrome -v', 'pq --swap --min-memory 1GiB -n 20']
+    },
+    net: {
+      label: 'Network', command: 'pq --net', note: 'Connections and listeners attributed to processes.',
+      groups: [['Filter sockets', [['--port PORT', 'local port'], ['--remote-port PORT', 'peer port'], ['--listen', 'listeners only'], ['--tcp / --udp', 'protocol'], ['--state STATE', 'socket state'], ['--public', 'all-interface listeners']]], ['Filter processes', processFilters.slice(0, 3)], ['Display', [['--services', 'service names'], ['--resolve', 'resolve peers'], ...commonOutput]], ['Related', [['--unix [PATH]', 'Unix sockets'], ['--kill', 'stop socket owners']]]],
+      examples: ['pq --port 8080', 'pq --net --listen --tcp --public', 'pq --remote-port 443 --state established -v']
+    },
+    io: {
+      label: 'I/O', command: 'pq --io', note: 'Process read and write rates over a sample.',
+      groups: [['Choose rate', [['--io', 'read + write'], ['--read', 'reads'], ['--write', 'writes']]], ['Filter processes', processFilters], ['Filter by socket owner', [['--port PORT', 'local port'], ['--remote-port PORT', 'peer port'], ['--listen', 'listeners']]], ['Display', [['--interval MS', 'sampling time'], ...commonOutput]]],
+      examples: ['pq --io postgres', 'pq --read --user postgres', 'pq --port 5432 --write']
+    },
+    disk: {
+      label: 'Disk', command: 'dq', note: 'Disk usage below a directory.',
+      groups: [['Choose view', [['dq [DIR]', 'directories'], ['--files', 'largest files'], ['--owners', 'usage by owner'], ['--age', 'usage by age']]], ['Filter', [['--exclude PATTERN', 'exclude paths; repeatable'], ['--exclude-from FILE', 'patterns from file'], ['--older-than AGE', 'minimum age'], ['--min-size SIZE', 'minimum size']]], ['Count', [['--allocated', 'filesystem blocks'], ['--apparent', 'logical size'], ['--cross-filesystems', 'cross mounts']]], ['Display', [['--top N', 'number of rows'], ['--depth N', 'directory depth'], ['--min-percent PERCENT', 'hide small groups'], ['--all', 'show all'], ['--errors', 'unreadable paths'], ['--json / --jsonl', 'machine output']]]],
+      examples: ['dq ~/Projects', 'dq --files --older-than 90d --min-size 1G /var', "dq --exclude node_modules --exclude '*.cache' ."]
+    },
+    files: {
+      label: 'Open files', command: 'pq --fds', note: 'Files and descriptors held by running processes.',
+      groups: [['Choose report', [['--fds', 'descriptor counts'], ['--deleted', 'deleted files consuming space'], ['--mount PATH', 'holders beneath a path'], ['--file PATH', 'holders of one path']]], ['Filter processes', processFilters.slice(0, 3)], ['Display', commonOutput]],
+      examples: ['pq --deleted', 'pq --fds --user postgres', 'pq --mount /mnt/data --fds -v']
     }
   };
 
-  let command = 'pq';
-  let topic = 'process';
-  $: selected = docs[command].topics.find((item) => item[0] === topic) || docs[command].topics[0];
-
-  function readHash() {
-    const match = window.location.hash.match(/^#(pq|dq)-(.+)$/);
-    if (match && docs[match[1]].topics.some((item) => item[0] === match[2])) {
-      command = match[1];
-      topic = match[2];
-    }
-  }
-
-  onMount(() => {
-    readHash();
-    window.addEventListener('hashchange', readHash);
-    return () => window.removeEventListener('hashchange', readHash);
-  });
-
-  function selectCommand(next) {
-    command = next;
-    topic = docs[next].topics[0][0];
-    history.replaceState({}, '', `/rtfm/#${command}-${topic}`);
-  }
-
-  function selectTopic(next) {
-    topic = next;
-    history.replaceState({}, '', `/rtfm/#${command}-${next}`);
-  }
+  let active = 'cpu';
+  $: branch = branches[active];
 </script>
 
-<section class="docs-hero">
-  <p class="eyebrow">COMMAND REFERENCE</p>
-  <h1>Read the friendly manual.</h1>
-  <p class="lede">Everything qtools can query, filter, and report—organized around the questions you want to answer.</p>
-</section>
+<div class="branch-layout">
+  <nav class="query-branches" aria-label="Choose a query">
+    <p>What are you looking at?</p>
+    {#each Object.entries(branches) as [key, item]}
+      <button class:active={active === key} on:click={() => active = key}><span>{item.label}</span><code>{item.command}</code></button>
+    {/each}
+  </nav>
 
-<div class="command-picker" role="tablist" aria-label="Command">
-  {#each Object.entries(docs) as [key, doc]}
-    <button role="tab" aria-selected={command === key} on:click={() => selectCommand(key)}><code>{key}</code><span>{doc.label}</span></button>
-  {/each}
-</div>
+  <article class="branch-doc">
+  <header class="branch-header">
+    <h1>{branch.label}</h1>
+    {#each explanations[active] as paragraph}<p>{paragraph}</p>{/each}
+    <div class="branch-command"><span>Start with</span><code>$ {branch.command}</code></div>
+  </header>
 
-<div class="docs-layout">
-  <aside aria-label={`${command} topics`}>
-    <p>{docs[command].intro}</p>
-    <nav>
-      {#each docs[command].topics as item}
-        <a href={`#${command}-${item[0]}`} class:active={topic === item[0]} on:click={(event) => { event.preventDefault(); selectTopic(item[0]); }}>
-          <span>{item[1]}</span><small>{item[2]}</small>
-        </a>
-      {/each}
-    </nav>
-  </aside>
+  <div class="compose-label"><span>Build on this query</span></div>
+  <div class="option-groups">
+    {#each branch.groups as group}
+      <section>
+        <h2>{group[0]}</h2>
+        <dl>
+          {#each group[1] as option}
+            <div><dt><code>{option[0]}</code></dt><dd>{option[1]}</dd></div>
+          {/each}
+        </dl>
+      </section>
+    {/each}
+  </div>
 
-  <article id={`${command}-${selected[0]}`}>
-    <div class="doc-kicker"><code>{command} help {selected[0]}</code></div>
-    <h2>{selected[1]}</h2>
-    <p>{selected[2]}.</p>
-    <pre><code>{selected[3]}</code></pre>
-    {#if command === 'pq' && topic === 'kill'}
-      <div class="callout">Safety first: <code>pq --kill</code> previews and confirms before sending TERM, waits four seconds, then sends KILL only to survivors. It excludes PID 1, itself, and your invoking shell.</div>
-    {:else if command === 'pq' && topic === 'pss'}
-      <div class="callout">PSS reads <code>/proc/PID/smaps_rollup</code>. It is more accurate for shared memory, but more expensive and permission-sensitive than the default RSS report.</div>
-    {:else if command === 'dq' && topic === 'scan'}
-      <div class="callout">Hard links are counted once by device and inode. Symbolic links are not followed.</div>
-    {/if}
-    <p class="terminal-tip">Run <code>{command} --help</code> for orientation or <code>{command} help {selected[0]}</code> for this topic in your terminal.</p>
+  <section class="branch-examples">
+    <h2>Complete commands</h2>
+    {#each branch.examples as example, index}<div><span>{exampleLabels[active][index]}</span><code>$ {example}</code></div>{/each}
+  </section>
   </article>
 </div>
