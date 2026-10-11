@@ -85,7 +85,8 @@ footer { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 72px; font-size:
 .slides img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: left top; }
 .feature-frame { position: absolute; right: 24px; bottom: 24px; display: grid; gap: 10px; width: min(330px, 38%); padding: 18px; color: #b9c5be; background: rgba(9,16,13,.94); border: 1px solid #496052; border-radius: 8px; box-shadow: 0 12px 35px rgba(0,0,0,.4); font-size: .82rem; line-height: 1.5; }
 .feature-frame strong { color: #73e2a7; font: 650 1rem system-ui, sans-serif; }
-.slides figcaption { margin-top: 11px; color: #aab7b0; font-size: .84rem; }
+.slides figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-top: 11px; color: #aab7b0; font-size: .84rem; }
+.slides figcaption a { white-space: nowrap; }
 .gallery-dots { display: flex; justify-content: center; gap: 9px; margin-top: 16px; }
 .gallery-dots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 50%; background: #33453c; cursor: pointer; transition: transform .15s, background .15s; }
 .gallery-dots button.active { background: #73e2a7; transform: scale(1.25); }
@@ -329,7 +330,7 @@ main > h1 { margin: 58px 0 28px; font-size: clamp(2.7rem, 6vw, 5rem); }
   .intro-copy { max-width: 560px; }
   .home-intro .toy-screen { grid-template-columns: 1fr; }
   .slide-stage { height: auto; }
-  .gallery-controls { top: 12px; bottom: auto; left: 12px; }
+  .gallery-controls { position: static; width: fit-content; margin-top: 12px; }
 }
 
 @media (max-width: 520px) {

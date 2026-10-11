@@ -9,7 +9,8 @@
     { image: 'pq-network.png', command: 'pq --net -n 8', caption: 'match connections and listeners to processes', title: 'Who is talking?', notes: ['The outer ring is active connections; the inner ring is listening sockets.', 'Red ports are listening on more than localhost.'], alt: 'pq two-ring network overview showing established connections and listeners including keylogger dot sh' },
     { image: 'pq-io.png', command: 'pq --io -n 10', caption: 'see which processes are reading and writing', title: 'Who is doing I/O?', notes: ['Three short-lived demo writers make the comparison visible here.', 'The table shows the rate measured over 400 ms, not a lifetime total.'], alt: 'pq process IO report with three demo workloads and their write rates' },
     { image: 'pq-tree.png', command: 'pq --tree chrome --cpu', caption: 'keep parent and child processes together', title: 'How did it start?', notes: ['The tree keeps parent and child relationships visible.', 'With --cpu, siblings are sorted without flattening the tree.'], alt: 'pq process tree filtered to Chrome with aligned CPU memory swap PID and parent PID columns' },
-    { image: 'dq-project.png', command: 'dq --all --top 8 ~/code/oss/qtools', caption: 'find the largest parts of a project checkout', title: 'Where did the space go?', notes: ['This checkout is mostly compiler output under target.', '--all shows the largest nested directories, not only the first level.'], alt: 'dq allocated-space report showing the largest directories in the qtools project' },
+    { image: 'dq-filesystem.png', command: 'dq --min-percent 5 /expanse', caption: 'see directory hierarchies and free space across a filesystem', title: 'How full is the filesystem?', notes: ['Read outside → in: parent directories, children, grandchildren.', 'Colors in the rings match the indented path list.', 'Free space shares the outer ring with directories.'], alt: 'dq filesystem report with three aligned directory rings, matching path colors, and free space in the outer ring' },
+    { image: 'dq-project.png', command: 'dq ~/code/oss/qtools', caption: 'follow compiler output into its largest subdirectories', title: 'Where did the space go?', notes: ['This checkout is mostly compiler output under target.', 'The inner rings break target down into children and grandchildren.', 'A subdirectory uses the whole chart; free space appears only at filesystem roots.'], alt: 'dq default hierarchy report showing target, its children, and grandchildren in three aligned rings without a free-space arc' },
     { image: 'pq-json.png', command: 'pq --json | head -36', caption: 'use the same process query from a script', title: 'Need the data?', notes: ['--json returns the report data without the terminal chart.', 'CPU, memory, swap, and process members remain separate fields.'], alt: 'pq JSON output showing sample metadata and process cluster fields' }
   ];
 
@@ -47,7 +48,7 @@
           {#each slide.notes as note}<span>{note}</span>{/each}
         </aside>
       </div>
-      <figcaption><code>{slide.command}</code> — {slide.caption}</figcaption>
+      <figcaption><span><code>{slide.command}</code> — {slide.caption}</span><a href={`/assets/screenshots/${slide.image}?v=${screenshotVersion}`} target="_blank" rel="noreferrer" aria-label={`View full-size screenshot: ${slide.title}`}>View full size ↗</a></figcaption>
     </figure>
   </div>
   <nav class="gallery-dots" aria-label="Choose screenshot">
